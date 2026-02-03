@@ -169,20 +169,25 @@ on:
 
 ---
 
-### Screenshots
+## Screenshots
 
+### Main Dashboard
 ![Main UI](screenshots/main_ui.png)
-*Dashboard showing classification, metrics, and governance log*
+*Dashboard showing classification, cost tracking, and governance log*
 
+### Policy Citations
 ![Policy Citations](screenshots/policy_citations.png)
-*Responses cite specific banking policies (POLICY-002)*
+*Responses cite specific banking policies*
 
+### Governance Log
 ![Governance Log](screenshots/governance_log.png)
 *Complete audit trail of every decision*
 
+### Chaos Mode
 ![Chaos Mode](screenshots/chaos_mode.png)
 *Failure injection with graceful degradation*
 
+### Test Results
 ![Test Results](screenshots/test_results.png)
 *13/13 regression tests passing*
 
