@@ -10,6 +10,24 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from .utils.enums import LLMProvider
 
 
+def _get_streamlit_secret(key: str) -> Optional[str]:
+    """Try to get a secret from Streamlit Cloud secrets.
+
+    Args:
+        key: The secret key to look up
+
+    Returns:
+        The secret value if found, None otherwise
+    """
+    try:
+        import streamlit as st
+        if hasattr(st, "secrets") and key in st.secrets:
+            return st.secrets[key]
+    except Exception:
+        pass
+    return None
+
+
 class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
 
@@ -95,5 +113,20 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
-    """Get cached settings instance."""
-    return Settings()
+    """Get cached settings instance.
+
+    Checks Streamlit secrets first (for Streamlit Cloud deployment),
+    then falls back to environment variables.
+    """
+    # Try to get API keys from Streamlit secrets first
+    openai_key = _get_streamlit_secret("OPENAI_API_KEY")
+    anthropic_key = _get_streamlit_secret("ANTHROPIC_API_KEY")
+
+    # Build kwargs for settings, only including secrets if found
+    kwargs = {}
+    if openai_key:
+        kwargs["openai_api_key"] = openai_key
+    if anthropic_key:
+        kwargs["anthropic_api_key"] = anthropic_key
+
+    return Settings(**kwargs)
