@@ -7,3 +7,4 @@ aiosqlite>=0.19.0
 structlog>=24.1.0
 tenacity>=8.2.0
 streamlit>=1.30.0
+git+https://github.com/kmufti7/intelliflow-core.git@main

@@ -11,6 +11,8 @@ import streamlit as st
 sys.path.insert(0, str(Path(__file__).parent))
 
 from dotenv import load_dotenv
+from intelliflow_core.governance_ui import init_governance_state, add_governance_log
+from intelliflow_core.helpers import format_timestamp_short
 
 from src.config import get_settings
 from src.db.connection import get_database, close_database
@@ -142,8 +144,8 @@ def init_session_state():
         st.session_state.orchestrator = None
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
-    if "governance_logs" not in st.session_state:
-        st.session_state.governance_logs = []
+    # Use shared governance state from intelliflow_core
+    init_governance_state()
     if "total_tokens" not in st.session_state:
         st.session_state.total_tokens = 0
     if "session_cost" not in st.session_state:
@@ -168,20 +170,6 @@ async def initialize_system():
     orchestrator = Orchestrator(db=db, llm_client=llm_client)
 
     return orchestrator
-
-
-def add_governance_log(component: str, action: str, success: bool, details: str = ""):
-    """Add an entry to the governance log."""
-    timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
-    st.session_state.governance_logs.insert(0, {
-        "timestamp": timestamp,
-        "component": component,
-        "action": action,
-        "success": success,
-        "details": details,
-    })
-    # Keep only last 100 entries
-    st.session_state.governance_logs = st.session_state.governance_logs[:100]
 
 
 async def process_message(message: str):
@@ -337,17 +325,18 @@ def render_chat_message(msg):
 
 
 def render_governance_log():
-    """Render the governance log panel."""
+    """Render the governance log panel using GovernanceLogEntry from intelliflow_core."""
     if not st.session_state.governance_logs:
         st.info("No activity yet. Send a message to begin.")
         return
 
-    # Build plain text log entries
+    # Build plain text log entries (reversed for newest-first display)
     log_lines = []
-    for entry in st.session_state.governance_logs:
-        status = "OK" if entry["success"] else "ERROR"
-        details = f' - {entry["details"]}' if entry["details"] else ""
-        line = f'{entry["timestamp"]} [{status:5}] [{entry["component"]}] {entry["action"]}{details}'
+    for entry in reversed(st.session_state.governance_logs):
+        status = "OK" if entry.success else "ERROR"
+        timestamp = format_timestamp_short(entry.timestamp)
+        details = f' - {entry.details}' if entry.details else ""
+        line = f'{timestamp} [{status:5}] [{entry.component}] {entry.action}{details}'
         log_lines.append(line)
 
     # Display as code block for monospace formatting
