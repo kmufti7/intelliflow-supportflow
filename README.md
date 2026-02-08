@@ -22,39 +22,24 @@ This isn't a chatbot. It's an **auditable, testable, failure-aware** workflow en
 ---
 
 ### Architecture
-```
-User Message
-     │
-     ▼
-┌─────────────┐
-│ Orchestrator│ ← Coordinates agents, logs every decision
-└──────┬──────┘
-       │
-       ▼
-┌─────────────┐
-│ Classifier  │ → POSITIVE | NEGATIVE | QUERY (with confidence)
-│   Agent     │
-└──────┬──────┘
-       │
-   ┌───┴───┬───────────┐
-   ▼       ▼           ▼
-Positive  Negative   Query
-Handler   Handler    Handler
-   │         │          │
-   │    ┌────┴────┐     │
-   │    │ Policy  │◄────┤
-   │    │ Service │     │
-   │    └────┬────┘     │
-   │         │          │
-   └────┬────┴────┬─────┘
-        ▼         ▼
-  ┌─────────────┐  ┌─────────┐
-  │ SQLite      │  │Streamlit│
-  │   DB        │  │   UI    │
-  │•tickets     │  │•chat    │
-  │•audit       │  │•metrics │
-  └─────────────┘  │•logs    │
-                   └─────────┘
+```mermaid
+flowchart TD
+  U[User Message] --> O[Orchestrator<br/>Coordinates agents, logs every decision]
+  O --> C[Classifier Agent<br/>POSITIVE / NEGATIVE / QUERY]
+  C --> H1[Positive Handler]
+  C --> H2[Negative Handler]
+  C --> H3[Query Handler]
+
+  H2 --> PS[Policy Service]
+  H3 --> PS
+
+  H1 --> DB[(SQLite DB<br/>tickets + audit)]
+  H2 --> DB
+  H3 --> DB
+
+  H1 --> UI[Streamlit UI<br/>chat + metrics + logs]
+  H2 --> UI
+  H3 --> UI
 ```
 
 **The Orchestrator Pattern:** A central coordinator that receives requests, delegates to specialized agents, logs every decision, and aggregates results. This is how enterprise AI systems are built—not monolithic "do everything" models.
