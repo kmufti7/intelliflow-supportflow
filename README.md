@@ -113,7 +113,7 @@ Every decision logged with timestamp:
 If a regulator asks "why did the system say X?", you can show the exact decision chain.
 
 #### 4. Cost & Token Tracking
-- Real-time token counting from OpenAI API response
+- Real-time token counting from Azure OpenAI API response
 - Cost calculation: (input × $0.00015/1K) + (output × $0.0006/1K)
 - Session totals displayed in UI metrics bar
 - Enables capacity planning and budget forecasting
@@ -190,7 +190,7 @@ pip install -r requirements.txt
 
 # Configure environment
 cp .env.example .env
-# Edit .env with your OpenAI API key
+# Edit .env with your Azure OpenAI API key
 
 # Run tests
 python test_suite.py
@@ -237,7 +237,7 @@ intelliflow_supportflow/
 ### Tech Stack
 | Layer | Technology |
 |-------|------------|
-| LLM | OpenAI GPT-4o-mini (swappable) |
+| LLM | Azure OpenAI GPT-4o-mini (swappable) |
 | Database | SQLite (abstracts to PostgreSQL) |
 | UI | Streamlit |
 | Testing | pytest + pytest-asyncio |
